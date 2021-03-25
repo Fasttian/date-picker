@@ -1,16 +1,26 @@
 {
-  "pages": [
-    {
-      "path": "pages/calendar/calendar",
-      "style": {
-        "navigationBarTitleText": "uni-app"
-      }
-    }
-  ],
-  "globalStyle": {
-    "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "uni-app",
-    "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#F8F8F8"
-  }
+	"pages": [{
+		"path": "pages/date-picker/date-picker",
+		"style": {
+			"navigationBarTitleText": "date-picker"
+		}
+	}, {
+		"path": "pages/calendar/calendar",
+		"style": {
+			"navigationBarTitleText": "calendar"
+		}
+	}, {
+		"path": "uni_modules/uni-date-picker/components/uni-date-picker/uni-date-picker",
+		"style": {
+			"navigationBarTitleText": "",
+			"enablePullDownRefresh": false
+		}
+
+	}],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	}
 }
