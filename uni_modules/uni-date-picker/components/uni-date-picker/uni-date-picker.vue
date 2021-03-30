@@ -15,12 +15,12 @@
 					<uni-icons type="list" color="#666"></uni-icons>
 				</view>
 				<input class="uni-date__input uni-date-range__input" type="text" :value="displayValue"
-					:placeholder="placeholder" />
+					:placeholder="startPlaceholder" />
 				<slot>
 					<view class="">{{rangeSeparator}}</view>
 				</slot>
 				<input class="uni-date__input uni-date-range__input" type="text" :value="displayValue"
-					:placeholder="placeholder" />
+					:placeholder="endPlaceholder" />
 				<view class="uni-date__icon-clear" @click="clear">
 					<uni-icons type="clear" color="#e1e1e1" size="14"></uni-icons>
 				</view>
@@ -28,15 +28,17 @@
 		</view>
 
 		<view ref="datePicker" v-if="popup" class="uni-date-picker__container" @click="show">
-<!-- 			<view class="uni-date-single--x" :style="popover">
+			<!-- <view class="uni-date-mask" @click="open"></view> -->
+			<view v-if="!range" class="uni-date-single--x" :style="popover">
 				<uni-calendar :selected="info.selected" :showMonth="false" @change="change"
 					@monthSwitch="monthSwitch" />
-			</view> -->
-			
-			<view class="uni-date-range--x" :style="popover">
-				<!-- <view class="uni-date-mask" @click="open"></view> -->
-				<uni-calendar :selected="info.selected" :showMonth="false" @change="change" @monthSwitch="monthSwitch" style="padding-right: 16px; border-right: 1px solid #F1F1F1;"/>
-				<uni-calendar :selected="info.selected" :showMonth="false" @change="change" @monthSwitch="monthSwitch" style="padding-left: 16px;" />
+			</view>
+
+			<view v-else class="uni-date-range--x" :style="popover">
+				<uni-calendar :selected="info.selected" :showMonth="false" @change="change" @monthSwitch="monthSwitch"
+					style="padding-right: 16px;" />
+				<uni-calendar :selected="info.selected" :showMonth="false" @change="change" @monthSwitch="monthSwitch"
+					style="padding-left: 16px;border-left: 1px solid #F1F1F1;" />
 			</view>
 		</view>
 	</view>
@@ -48,7 +50,7 @@
 	/**
 	 * 获取任意时间
 	 */
-	
+
 	export default {
 		data() {
 			return {
@@ -66,22 +68,45 @@
 			}
 		},
 		props: {
+			type: {
+				type: String,
+				default: 'date'
+			},
 			value: {
 				type: [String, Number],
 				default: ''
 			},
 			placeholder: {
 				type: String,
-				default: ''
+				default: '选择日期'
+			},
+			startPlaceholder: {
+				type: String,
+				default: '起始日期'
+			},
+			endPlaceholder: {
+				type: String,
+				default: '结束日期'
 			},
 			rangeSeparator: {
 				default: '-'
 			}
 		},
+		watch: {
+			type: {
+				immediate: true,
+				handler(newVal, oldVal) {
+					if (newVal === 'date') {
+						this.range = false
+					} else if (newVal === 'daterange') {
+						this.range = true
+					}
+				}
+			}
+		},
 		computed: {
 
 		},
-
 		methods: {
 
 			show(event) {
@@ -103,10 +128,10 @@
 						// height: rect.height
 					}
 				}).exec()
-				this.popup = !this.popup
-				// setTimeout(() => {
-				// 	this.visible = true
-				// }, 20)
+				setTimeout(() => {
+					this.popup = !this.popup
+					// this.visible = true
+				}, 20)
 			},
 
 
@@ -120,24 +145,23 @@
 					info: '打卡'
 				})
 			},
-			
+
 			clear() {
 				this.displayValue = ''
-				console.log(4444, this.displayValue);
 			},
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
+
+
+
+
+
+
+
+
+
+
+
+
+
 			confirm(e) {
 				console.log('confirm 返回:', e)
 			},
@@ -158,6 +182,7 @@
 		border-radius: 4px;
 		background-color: #fff;
 		color: #666;
+		font-size: 14px;
 	}
 
 	.uni-date__input {
@@ -165,6 +190,7 @@
 		width: 100%;
 		padding: 0 8px;
 		line-height: 40px;
+		font-size: 14px;
 	}
 
 	.uni-date-range__input {
@@ -180,7 +206,7 @@
 		bottom: 0;
 		box-sizing: border-box;
 		z-index: 996;
-		font-size: 16px;
+		font-size: 14px;
 	}
 
 	.uni-date-mask {
@@ -202,7 +228,7 @@
 		width: 375px;
 		border: 1px solid #F1F1F1;
 	}
-	
+
 	.uni-date-range--x {
 		display: flex;
 		position: absolute;
