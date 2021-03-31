@@ -6,7 +6,8 @@ class Calendar {
 		selected,
 		startDate,
 		endDate,
-		range
+		range,
+		multipleStatus
 	} = {}) {
 		// 当前日期
 		this.date = this.getDate(new Date()) // 当前初入日期
@@ -22,6 +23,7 @@ class Calendar {
 		// 每周日期
 		this.weeks = {}
 		// this._getWeek(this.date.fullDate)
+		this.multipleStatus = multipleStatus
 	}
 	/**
 	 * 设置日期

@@ -20,7 +20,7 @@
 				<view class="uni-calendar__header-btn-box" @click.stop="next">
 					<view class="uni-calendar__header-btn uni-calendar--right"></view>
 				</view>
-				<text class="uni-calendar__backtoday" @click="backtoday">回到今天</text>
+				<!-- <text class="uni-calendar__backtoday" @click="backtoday">回到今天</text> -->
 
 			</view>
 			<view class="uni-calendar__box">
@@ -125,6 +125,12 @@
 			clearDate: {
 				type: Boolean,
 				default: true
+			},
+			pleStatus: {
+				type: Object,
+				default () {
+					return {}
+				}
 			}
 		},
 		data() {
@@ -133,7 +139,7 @@
 				weeks: [],
 				calendar: {},
 				nowDate: '',
-				aniMaskShow: false
+				aniMaskShow: false,
 			}
 		},
 		watch: {
@@ -150,7 +156,17 @@
 			selected(newVal) {
 				this.cale.setSelectInfo(this.nowDate.fullDate, newVal)
 				this.weeks = this.cale.weeks
-			}
+			},
+			pleStatus: {
+				immediate: true,
+				handler(newVal) {
+					if(newVal.fulldate) {
+						console.log(11111111, newVal.fulldate);
+						this.cale.setMultiple(newVal.fulldate)
+						this.weeks = this.cale.weeks
+					}
+				}
+			}	
 		},
 		created() {
 			// 获取日历方法实例
@@ -160,6 +176,7 @@
 				startDate: this.startDate,
 				endDate: this.endDate,
 				range: this.range,
+				multipleStatus: this.pleStatus	
 			})
 			// 选中某一天
 			// this.cale.setDate(this.date)

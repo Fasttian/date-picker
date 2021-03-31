@@ -1,7 +1,7 @@
 <template>
 	<view class="uni-date">
 		<view class="uni-date-editor--X" @click="show">
-			<view v-if="!range" class="uni-date-x uni-date-single mt20">
+			<view v-if="!isRange" class="uni-date-x uni-date-single mt20">
 				<view class="uni-date__icon-logo">
 					<uni-icons type="list" color="#666"></uni-icons>
 				</view>
@@ -14,12 +14,12 @@
 				<view class="uni-date__icon-logo">
 					<uni-icons type="list" color="#666"></uni-icons>
 				</view>
-				<input class="uni-date__input uni-date-range__input" type="text" :value="displayValue"
+				<input class="uni-date__input uni-date-range__input" type="text" :value="range.startVal"
 					:placeholder="startPlaceholder" />
 				<slot>
 					<view class="">{{rangeSeparator}}</view>
 				</slot>
-				<input class="uni-date__input uni-date-range__input" type="text" :value="displayValue"
+				<input class="uni-date__input uni-date-range__input" type="text" :value="range.endVal"
 					:placeholder="endPlaceholder" />
 				<view class="uni-date__icon-clear" @click="clear">
 					<uni-icons type="clear" color="#e1e1e1" size="14"></uni-icons>
@@ -27,18 +27,17 @@
 			</view>
 		</view>
 
-		<view ref="datePicker" v-if="popup" class="uni-date-picker__container" @click="show">
+		<view ref="datePicker" v-if="popup" class="uni-date-picker__container">
 			<!-- <view class="uni-date-mask" @click="open"></view> -->
-			<view v-if="!range" class="uni-date-single--x" :style="popover">
-				<uni-calendar :selected="info.selected" :showMonth="false" @change="change"
-					@monthSwitch="monthSwitch" />
+			<view v-if="!isRange" class="uni-date-single--x" :style="popover">
+				<uni-calendar :showMonth="false" @change="change" @monthSwitch="monthSwitch" />
 			</view>
 
 			<view v-else class="uni-date-range--x" :style="popover">
-				<uni-calendar :selected="info.selected" :showMonth="false" @change="change" @monthSwitch="monthSwitch"
-					style="padding-right: 16px;" />
-				<uni-calendar :selected="info.selected" :showMonth="false" @change="change" @monthSwitch="monthSwitch"
-					style="padding-left: 16px;border-left: 1px solid #F1F1F1;" />
+				<uni-calendar :showMonth="false" :range="true" @change="startChange" :pleStatus="endMultipleStatus"
+					@monthSwitch="monthSwitch" style="padding-right: 16px;" />
+				<uni-calendar :showMonth="false" :range="true" @change="endChange" :pleStatus="startMultipleStatus"
+					@monthSwitch="monthSwitch" style="padding-left: 16px;border-left: 1px solid #F1F1F1;" />
 			</view>
 		</view>
 	</view>
@@ -54,17 +53,25 @@
 	export default {
 		data() {
 			return {
-				range: false,
+				isRange: false,
+				range: {
+					startVal: '',
+					endVal: ''
+				},
+				startMultipleStatus: {
+					before: '',
+					after: '',
+					fulldate: ''
+				},
+				endMultipleStatus: {
+					before: '',
+					after: '',
+					fulldate: ''
+				},
 				visible: false,
 				popup: false,
 				popover: null,
-				displayValue: '',
-				info: {
-					lunar: true,
-					range: true,
-					insert: false,
-					selected: []
-				}
+				displayValue: ''
 			}
 		},
 		props: {
@@ -97,9 +104,9 @@
 				immediate: true,
 				handler(newVal, oldVal) {
 					if (newVal === 'date') {
-						this.range = false
+						this.isRange = false
 					} else if (newVal === 'daterange') {
-						this.range = true
+						this.isRange = true
 					}
 				}
 			}
@@ -134,24 +141,29 @@
 				}, 20)
 			},
 
-
 			change(e) {
 				// console.log('change 返回:', e)
 				this.displayValue = e.fulldate
-				// 模拟动态打卡
-				if (this.info.selected.length > 5) return
-				this.info.selected.push({
-					date: e.fulldate,
-					info: '打卡'
-				})
 			},
+
+			startChange(e) {
+				// console.log('change start 返回:', e)
+				this.range.startVal = e.fulldate
+				this.startMultipleStatus = Object.assign({}, this.startMultipleStatus, e.range, { fulldate: e.fulldate })
+				console.log('startMultipleStatus 返回:', this.startMultipleStatus)
+			},
+
+			endChange(e) {
+				// console.log('change end 返回:', e)
+				this.range.endVal = e.fulldate
+				this.endMultipleStatus = Object.assign({}, this.endMultipleStatus, e.range, { fulldate: e.fulldate })
+				console.log('endMultipleStatus 返回:', this.endMultipleStatus)
+			},
+
 
 			clear() {
 				this.displayValue = ''
 			},
-
-
-
 
 
 
