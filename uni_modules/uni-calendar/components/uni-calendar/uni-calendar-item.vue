@@ -6,8 +6,7 @@
 		'uni-calendar-item--before-checked':weeks.beforeMultiple,
 		'uni-calendar-item--multiple': weeks.multiple,
 		'uni-calendar-item--after-checked':weeks.afterMultiple,
-		}"
-	 @click="choiceDate(weeks)">
+		}" @click="choiceDate(weeks)" @mousemove="handleMousemove">
 		<view class="uni-calendar-item__weeks-box-item">
 			<text v-if="selected&&weeks.extraInfo" class="uni-calendar-item__weeks-box-circle"></text>
 			<text class="uni-calendar-item__weeks-box-text" :class="{
@@ -79,6 +78,9 @@
 		methods: {
 			choiceDate(weeks) {
 				this.$emit('change', weeks)
+			},
+			handleMousemove(e) {
+				console.log(8888888, e);
 			}
 		}
 	}
@@ -115,6 +117,13 @@
 		align-items: center;
 		width: 100rpx;
 		height: 100rpx;
+		/* #ifdef H5 */
+		cursor: pointer;
+		/* #endif */
+	}
+	
+	.uni-calendar-item__weeks-box-item:hover {
+		background-color: #e3e33e;
 	}
 
 	.uni-calendar-item__weeks-box-circle {
@@ -159,10 +168,12 @@
 		color: #fff;
 		opacity: 0.8;
 	}
+
 	.uni-calendar-item--before-checked {
 		background-color: #ff5a5f;
 		color: #fff;
 	}
+
 	.uni-calendar-item--after-checked {
 		background-color: #ff5a5f;
 		color: #fff;

@@ -129,7 +129,12 @@
 			pleStatus: {
 				type: Object,
 				default () {
-					return {}
+					return {
+						before: '',
+						after: '',
+						data: [],
+						fulldate: ''
+					}
 				}
 			}
 		},
@@ -158,12 +163,19 @@
 				this.weeks = this.cale.weeks
 			},
 			pleStatus: {
-				immediate: true,
-				handler(newVal) {
+				immediate: false,
+				handler(newVal, oldVal) {
 					if(newVal.fulldate) {
-						console.log(11111111, newVal.fulldate);
+						// console.log(11111111, newVal);
+						// console.log(22222222, oldVal);
+						// console.log(3333333, this.nowDate.fullDate);
 						this.cale.setMultiple(newVal.fulldate)
-						this.weeks = this.cale.weeks
+						if (newVal.before && newVal.after) {
+							this.setDate(newVal.before)
+						}
+						if (!newVal.before && !newVal.after) {
+							this.setDate(this.nowDate.fullDate)
+						}
 					}
 				}
 			}	
@@ -176,7 +188,7 @@
 				startDate: this.startDate,
 				endDate: this.endDate,
 				range: this.range,
-				multipleStatus: this.pleStatus	
+				// multipleStatus: this.pleStatus	
 			})
 			// 选中某一天
 			// this.cale.setDate(this.date)

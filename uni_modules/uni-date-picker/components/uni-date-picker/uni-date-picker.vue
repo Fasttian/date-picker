@@ -27,17 +27,17 @@
 			</view>
 		</view>
 
-		<view ref="datePicker" v-if="popup" class="uni-date-picker__container">
+		<view ref="datePicker" v-show="popup" class="uni-date-picker__container">
 			<!-- <view class="uni-date-mask" @click="open"></view> -->
 			<view v-if="!isRange" class="uni-date-single--x" :style="popover">
 				<uni-calendar :showMonth="false" @change="change" @monthSwitch="monthSwitch" />
 			</view>
 
 			<view v-else class="uni-date-range--x" :style="popover">
-				<uni-calendar :showMonth="false" :range="true" @change="startChange" :pleStatus="endMultipleStatus"
-					@monthSwitch="monthSwitch" style="padding-right: 16px;" />
-				<uni-calendar :showMonth="false" :range="true" @change="endChange" :pleStatus="startMultipleStatus"
-					@monthSwitch="monthSwitch" style="padding-left: 16px;border-left: 1px solid #F1F1F1;" />
+				<uni-calendar ref="left" :showMonth="false" :range="true" @change="startChange" :pleStatus="endMultipleStatus"
+					@monthSwitch="leftMonthSwitch" style="padding-right: 16px;" />
+				<uni-calendar ref="right" :showMonth="false" :range="true" @change="endChange" :pleStatus="startMultipleStatus"
+					@monthSwitch="rightMonthSwitch" style="padding-left: 16px;border-left: 1px solid #F1F1F1;" />
 			</view>
 		</view>
 	</view>
@@ -61,11 +61,13 @@
 				startMultipleStatus: {
 					before: '',
 					after: '',
+					data: [],
 					fulldate: ''
 				},
 				endMultipleStatus: {
 					before: '',
 					after: '',
+					data: [],
 					fulldate: ''
 				},
 				visible: false,
@@ -114,25 +116,25 @@
 		computed: {
 
 		},
+		mounted() {
+			if(this.isRange) {
+				this.$refs.right.next()
+			}
+		},
 		methods: {
-
+			getRef() {
+				console.log(66666666, this.$refs.left);
+				this.$refs.left.pre()
+			},
 			show(event) {
 				if (this.disabled || false) {
 					return
 				}
-				// this.valueChangeSource = ''
-				// console.log(11111, this.$refs.datePicker);
-				// const $datePicker = this.$refs.datePicker
-				// $picker.remove();
-				// (document.querySelector('uni-app') || document.body).appendChild(this.$refs.datePicker)
-				// this.$refs.datePicker.style.display = 'block'
 				const dateEditor = uni.createSelectorQuery().in(this).select(".uni-date-editor--X")
 				dateEditor.boundingClientRect(rect => {
 					this.popover = {
 						top: rect.top + rect.height + 50 + 'px',
 						left: rect.left + 'px',
-						// width: rect.width,
-						// height: rect.height
 					}
 				}).exec()
 				setTimeout(() => {
@@ -149,14 +151,26 @@
 			startChange(e) {
 				// console.log('change start 返回:', e)
 				this.range.startVal = e.fulldate
-				this.startMultipleStatus = Object.assign({}, this.startMultipleStatus, e.range, { fulldate: e.fulldate })
+				const obj = {
+					before: e.range.before,
+					after: e.range.after,
+					data: e.range.data,
+					fulldate: e.fulldate
+				}
+				this.startMultipleStatus = Object.assign({}, this.startMultipleStatus, obj)
 				console.log('startMultipleStatus 返回:', this.startMultipleStatus)
 			},
 
 			endChange(e) {
 				// console.log('change end 返回:', e)
 				this.range.endVal = e.fulldate
-				this.endMultipleStatus = Object.assign({}, this.endMultipleStatus, e.range, { fulldate: e.fulldate })
+				const obj = {
+					before: e.range.before,
+					after: e.range.after,
+					data: e.range.data,
+					fulldate: e.fulldate
+				}
+				this.endMultipleStatus = Object.assign({}, this.endMultipleStatus, obj)
 				console.log('endMultipleStatus 返回:', this.endMultipleStatus)
 			},
 
@@ -177,8 +191,11 @@
 			confirm(e) {
 				console.log('confirm 返回:', e)
 			},
-			monthSwitch(e) {
-				console.log('monthSwitchs 返回:', e)
+			leftMonthSwitch(e) {
+				console.log('leftMonthSwitch 返回:', e)
+			},
+			rightMonthSwitch(e) {
+				console.log('rightMonthSwitch 返回:', e)
 			}
 		}
 	}

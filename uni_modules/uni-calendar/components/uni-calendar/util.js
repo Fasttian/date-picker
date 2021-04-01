@@ -7,7 +7,7 @@ class Calendar {
 		startDate,
 		endDate,
 		range,
-		multipleStatus
+		// multipleStatus
 	} = {}) {
 		// 当前日期
 		this.date = this.getDate(new Date()) // 当前初入日期
@@ -23,7 +23,7 @@ class Calendar {
 		// 每周日期
 		this.weeks = {}
 		// this._getWeek(this.date.fullDate)
-		this.multipleStatus = multipleStatus
+		// this.multipleStatus = multipleStatus
 	}
 	/**
 	 * 设置日期
@@ -218,7 +218,7 @@ class Calendar {
 		startDate = new Date(startDate.replace('-', '/').replace('-', '/'))
 		// 计算详细项的截止时间
 		endDate = new Date(endDate.replace('-', '/').replace('-', '/'))
-		if (startDate <= endDate) {
+		if (startDate <= endDate) {    
 			return true
 		} else {
 			return false
@@ -290,6 +290,7 @@ class Calendar {
 			this.multipleStatus.before = ''
 			this.multipleStatus.after = ''
 			this.multipleStatus.data = []
+			this.multipleStatus.fulldate = ''
 		} else {
 			if (!before) {
 				this.multipleStatus.before = fullDate
