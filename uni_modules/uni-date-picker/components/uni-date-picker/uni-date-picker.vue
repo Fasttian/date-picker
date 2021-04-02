@@ -35,7 +35,7 @@
 
 			<view v-else class="uni-date-range--x" :style="popover">
 				<uni-calendar ref="left" :showMonth="false" :range="true" @change="startChange" :pleStatus="endMultipleStatus"
-					@monthSwitch="leftMonthSwitch" style="padding-right: 16px;" />
+					@switchCale="leftswitchCale" @monthSwitch="leftMonthSwitch" style="padding-right: 16px;" />
 				<uni-calendar ref="right" :showMonth="false" :range="true" @change="endChange" :pleStatus="startMultipleStatus"
 					@monthSwitch="rightMonthSwitch" style="padding-left: 16px;border-left: 1px solid #F1F1F1;" />
 			</view>
@@ -122,6 +122,9 @@
 			}
 		},
 		methods: {
+			leftswitchCale(e) {
+				console.log(55555, e);
+			},
 			getRef() {
 				console.log(66666666, this.$refs.left);
 				this.$refs.left.pre()
@@ -158,7 +161,7 @@
 					fulldate: e.fulldate
 				}
 				this.startMultipleStatus = Object.assign({}, this.startMultipleStatus, obj)
-				console.log('startMultipleStatus 返回:', this.startMultipleStatus)
+				// console.log('startMultipleStatus 返回:', this.startMultipleStatus)
 			},
 
 			endChange(e) {
@@ -171,7 +174,7 @@
 					fulldate: e.fulldate
 				}
 				this.endMultipleStatus = Object.assign({}, this.endMultipleStatus, obj)
-				console.log('endMultipleStatus 返回:', this.endMultipleStatus)
+				// console.log('endMultipleStatus 返回:', this.endMultipleStatus)
 			},
 
 
@@ -192,10 +195,10 @@
 				console.log('confirm 返回:', e)
 			},
 			leftMonthSwitch(e) {
-				console.log('leftMonthSwitch 返回:', e)
+				// console.log('leftMonthSwitch 返回:', e)
 			},
 			rightMonthSwitch(e) {
-				console.log('rightMonthSwitch 返回:', e)
+				// console.log('rightMonthSwitch 返回:', e)
 			}
 		}
 	}

@@ -1,7 +1,9 @@
 <template>
 	<view class="uni-calendar">
-		<view v-if="!insert&&show" class="uni-calendar__mask" :class="{'uni-calendar--mask-show':aniMaskShow}" @click="clean"></view>
-		<view v-if="insert || show" class="uni-calendar__content" :class="{'uni-calendar--fixed':!insert,'uni-calendar--ani-show':aniMaskShow}">
+		<view v-if="!insert&&show" class="uni-calendar__mask" :class="{'uni-calendar--mask-show':aniMaskShow}"
+			@click="clean"></view>
+		<view v-if="insert || show" class="uni-calendar__content"
+			:class="{'uni-calendar--fixed':!insert,'uni-calendar--ani-show':aniMaskShow}">
 			<view v-if="!insert" class="uni-calendar__header uni-calendar--fixed-top">
 				<view class="uni-calendar__header-btn-box" @click="close">
 					<text class="uni-calendar__header-text uni-calendar--fixed-width">取消</text>
@@ -15,7 +17,8 @@
 					<view class="uni-calendar__header-btn uni-calendar--left"></view>
 				</view>
 				<picker mode="date" :value="date" fields="month" @change="bindDateChange">
-					<text class="uni-calendar__header-text">{{ (nowDate.year||'') +'年'+( nowDate.month||'') +'月'}}</text>
+					<text
+						class="uni-calendar__header-text">{{ (nowDate.year||'') +'年'+( nowDate.month||'') +'月'}}</text>
 				</picker>
 				<view class="uni-calendar__header-btn-box" @click.stop="next">
 					<view class="uni-calendar__header-btn uni-calendar--right"></view>
@@ -52,7 +55,9 @@
 				</view>
 				<view class="uni-calendar__weeks" v-for="(item,weekIndex) in weeks" :key="weekIndex">
 					<view class="uni-calendar__weeks-item" v-for="(weeks,weeksIndex) in item" :key="weeksIndex">
-						<calendar-item class="uni-calendar-item--hook" :weeks="weeks" :calendar="calendar" :selected="selected" :lunar="lunar" @change="choiceDate"></calendar-item>
+						<calendar-item class="uni-calendar-item--hook" :weeks="weeks" :calendar="calendar"
+							:selected="selected" :lunar="lunar" @change="choiceDate" @handleMouse="handleMouse">
+						</calendar-item>
 					</view>
 				</view>
 			</view>
@@ -152,10 +157,10 @@
 				// this.cale.setDate(newVal)
 				this.init(newVal)
 			},
-			startDate(val){
+			startDate(val) {
 				this.cale.resetSatrtDate(val)
 			},
-			endDate(val){
+			endDate(val) {
 				this.cale.resetEndDate(val)
 			},
 			selected(newVal) {
@@ -165,20 +170,23 @@
 			pleStatus: {
 				immediate: false,
 				handler(newVal, oldVal) {
-					if(newVal.fulldate) {
-						// console.log(11111111, newVal);
-						// console.log(22222222, oldVal);
+					if (newVal.fulldate) {
+						console.log(11111111, newVal);
+						console.log(22222222, oldVal);
 						// console.log(3333333, this.nowDate.fullDate);
-						this.cale.setMultiple(newVal.fulldate)
+						this.cale.setHoverMultiple(newVal.fulldate)
 						if (newVal.before && newVal.after) {
 							this.setDate(newVal.before)
+							this.cale.lastHover = true
 						}
 						if (!newVal.before && !newVal.after) {
+							this.cale.setMultiple(newVal.fulldate)
 							this.setDate(this.nowDate.fullDate)
+							this.cale.lastHover = false
 						}
 					}
 				}
-			}	
+			}
 		},
 		created() {
 			// 获取日历方法实例
@@ -196,6 +204,22 @@
 			// this.setDay
 		},
 		methods: {
+			handleMouse(weeks) {
+				if (weeks.disable) return
+				this.$emit('switchCale', this.cale.multipleStatus)
+				if (this.cale.lastHover) return
+				// console.log(77777, this.cale.lastHover);
+				let {
+					before,
+					after
+				} = this.cale.multipleStatus
+				if (!before) return
+				// if (before && after) return
+				this.calendar = weeks
+				// 设置范围选
+				this.cale.setHoverMultiple(this.calendar.fullDate)
+				this.weeks = this.cale.weeks
+			},
 			// 取消穿透
 			clean() {},
 			bindDateChange(e) {
@@ -299,7 +323,7 @@
 				if (weeks.disable) return
 				this.calendar = weeks
 				// 设置多选
-				this.cale.setMultiple(this.calendar.fullDate)
+				this.cale.setMultiple(this.calendar.fullDate, true)
 				this.weeks = this.cale.weeks
 				this.change()
 			},

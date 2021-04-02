@@ -6,7 +6,7 @@
 		'uni-calendar-item--before-checked':weeks.beforeMultiple,
 		'uni-calendar-item--multiple': weeks.multiple,
 		'uni-calendar-item--after-checked':weeks.afterMultiple,
-		}" @click="choiceDate(weeks)" @mousemove="handleMousemove">
+		}" @click="choiceDate(weeks)" @mouseenter="handleMousemove(weeks)">
 		<view class="uni-calendar-item__weeks-box-item">
 			<text v-if="selected&&weeks.extraInfo" class="uni-calendar-item__weeks-box-circle"></text>
 			<text class="uni-calendar-item__weeks-box-text" :class="{
@@ -79,8 +79,8 @@
 			choiceDate(weeks) {
 				this.$emit('change', weeks)
 			},
-			handleMousemove(e) {
-				console.log(8888888, e);
+			handleMousemove(weeks) {
+				this.$emit('handleMouse', weeks)
 			}
 		}
 	}
@@ -122,9 +122,6 @@
 		/* #endif */
 	}
 	
-	.uni-calendar-item__weeks-box-item:hover {
-		background-color: #e3e33e;
-	}
 
 	.uni-calendar-item__weeks-box-circle {
 		position: absolute;

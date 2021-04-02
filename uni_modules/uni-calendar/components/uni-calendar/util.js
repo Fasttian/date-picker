@@ -24,6 +24,7 @@ class Calendar {
 		this.weeks = {}
 		// this._getWeek(this.date.fullDate)
 		// this.multipleStatus = multipleStatus
+		this.lastHover = false
 	}
 	/**
 	 * 设置日期
@@ -218,7 +219,7 @@ class Calendar {
 		startDate = new Date(startDate.replace('-', '/').replace('-', '/'))
 		// 计算详细项的截止时间
 		endDate = new Date(endDate.replace('-', '/').replace('-', '/'))
-		if (startDate <= endDate) {    
+		if (startDate <= endDate) {
 			return true
 		} else {
 			return false
@@ -287,20 +288,53 @@ class Calendar {
 
 		if (!this.range) return
 		if (before && after) {
+			if (!this.lastHover) {
+				this.lastHover = true
+				return
+			}
 			this.multipleStatus.before = ''
 			this.multipleStatus.after = ''
 			this.multipleStatus.data = []
 			this.multipleStatus.fulldate = ''
+			this.lastHover = false
 		} else {
+			this.lastHover = false
 			if (!before) {
 				this.multipleStatus.before = fullDate
 			} else {
 				this.multipleStatus.after = fullDate
 				if (this.dateCompare(this.multipleStatus.before, this.multipleStatus.after)) {
-					this.multipleStatus.data = this.geDateAll(this.multipleStatus.before, this.multipleStatus.after);
+					this.multipleStatus.data = this.geDateAll(this.multipleStatus.before, this.multipleStatus
+						.after);
 				} else {
-					this.multipleStatus.data = this.geDateAll(this.multipleStatus.after, this.multipleStatus.before);
+					this.multipleStatus.data = this.geDateAll(this.multipleStatus.after, this.multipleStatus
+						.before);
 				}
+			}
+		}
+		this._getWeek(fullDate)
+	}
+
+	/**
+	 *  鼠标 hover 更新多选状态
+	 */
+	setHoverMultiple(fullDate) {
+		let {
+			before,
+			after
+		} = this.multipleStatus
+
+		if (!this.range) return
+		if (this.lastHover) return
+
+		if (!before) {
+			this.multipleStatus.before = fullDate
+		} else {
+			this.multipleStatus.after = fullDate
+			if (this.dateCompare(this.multipleStatus.before, this.multipleStatus.after)) {
+				this.multipleStatus.data = this.geDateAll(this.multipleStatus.before, this.multipleStatus.after);
+			} else {
+				this.multipleStatus.data = this.geDateAll(this.multipleStatus.after, this.multipleStatus.before);
 			}
 		}
 		this._getWeek(fullDate)
