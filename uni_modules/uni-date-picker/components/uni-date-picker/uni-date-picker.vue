@@ -1,16 +1,14 @@
 <template>
 	<view class="uni-date">
-		<view class="uni-date-editor--X" @click="show">
-			<view v-if="!isRange" class="uni-date-x uni-date-single mt20">
+		<view class="uni-date-editor--x">
+			
+			<view v-if="!isRange" class="uni-date-x uni-date-single mt20" @click="show">
 				<view class="uni-date__icon-logo">
 					<uni-icons type="list" color="#666"></uni-icons>
 				</view>
 				<input class="uni-date__input" type="text" :value="displayValue" :placeholder="placeholder" />
-				<view class="uni-date__icon-clear" @click="clear">
-					<uni-icons type="clear" color="#e1e1e1" size="14"></uni-icons>
-				</view>
 			</view>
-			<view v-else class="uni-date-x uni-date-range mt20">
+			<view v-else class="uni-date-x uni-date-range mt20" @click="show">
 				<view class="uni-date__icon-logo">
 					<uni-icons type="list" color="#666"></uni-icons>
 				</view>
@@ -21,30 +19,31 @@
 				</slot>
 				<input class="uni-date__input uni-date-range__input" type="text" :value="range.endVal"
 					:placeholder="endPlaceholder" />
-				<view class="uni-date__icon-clear" @click="clear">
-					<uni-icons type="clear" color="#e1e1e1" size="14"></uni-icons>
-				</view>
+			</view>
+			<view v-show="displayValue || range.startVal || range.endVal" class="uni-date__icon-clear" @click="clear">
+				
+				<uni-icons type="clear" color="#e1e1e1" size="14"></uni-icons>
 			</view>
 		</view>
-
+		<view v-show="popup" class="uni-date-mask" @click="close"></view>
 		<view ref="datePicker" v-show="popup" class="uni-date-picker__container">
-			<!-- <view class="uni-date-mask" @click="open"></view> -->
 			<view v-if="!isRange" class="uni-date-single--x" :style="popover">
-				<uni-calendar :showMonth="false" @change="change" @monthSwitch="monthSwitch" />
+				<uni-calendar :showMonth="false" :date="displayValue" @change="change"/>
 			</view>
 
 			<view v-else class="uni-date-range--x" :style="popover">
-				<uni-calendar ref="left" :showMonth="false" :range="true" @change="startChange" :pleStatus="endMultipleStatus"
-					@switchCale="leftswitchCale" @monthSwitch="leftMonthSwitch" style="padding-right: 16px;" />
-				<uni-calendar ref="right" :showMonth="false" :range="true" @change="endChange" :pleStatus="startMultipleStatus"
-					@monthSwitch="rightMonthSwitch" style="padding-left: 16px;border-left: 1px solid #F1F1F1;" />
+				<uni-calendar ref="left" :showMonth="false" :range="true" @change="leftChange"
+					:pleStatus="endMultipleStatus" @firstEnterCale="updateRightCale" @monthSwitch="leftMonthSwitch"
+					style="padding-right: 16px;" />
+				<uni-calendar ref="right" :showMonth="false" :range="true" @change="rightChange"
+					:pleStatus="startMultipleStatus" @firstEnterCale="updateLeftCale" @monthSwitch="rightMonthSwitch"
+					style="padding-left: 16px;border-left: 1px solid #F1F1F1;" />
 			</view>
 		</view>
+		<uni-calendar ref="mobile" :showMonth="false" :range="isRange" @change="" :insert="false"
+			@confirm="mobileChange"/>
 	</view>
 </template>
-
-
-
 <script>
 	/**
 	 * 获取任意时间
@@ -53,7 +52,7 @@
 	export default {
 		data() {
 			return {
-				isRange: false,
+				mobileRange: false,
 				range: {
 					startVal: '',
 					endVal: ''
@@ -82,7 +81,7 @@
 				default: 'date'
 			},
 			value: {
-				type: [String, Number],
+				type: [String, Number, Array],
 				default: ''
 			},
 			placeholder: {
@@ -111,29 +110,54 @@
 						this.isRange = true
 					}
 				}
+			},
+			value: {
+				immediate: true,
+				handler(newVal, oldVal) {
+					if (newVal) {
+						if (this.isRange === false)  {
+							this.displayValue = newVal
+						} 
+					}
+				}
 			}
 		},
 		computed: {
 
 		},
 		mounted() {
-			if(this.isRange) {
+			if (this.isRange) {
 				this.$refs.right.next()
 			}
 		},
 		methods: {
-			leftswitchCale(e) {
-				console.log(55555, e);
+			updateLeftCale(e) {
+				// console.log('----updateStartCale:', e);
+				const left = this.$refs.left
+				// 设置范围选
+				left.cale.setHoverMultiple(e.after)
+				left.setDate(this.$refs.left.nowDate.fullDate)
+			},
+			updateRightCale(e) {
+				// console.log('----updateStartCale:', e);
+				const right = this.$refs.right
+				// 设置范围选
+				right.cale.setHoverMultiple(e.after)
+				right.setDate(this.$refs.right.nowDate.fullDate)
 			},
 			getRef() {
-				console.log(66666666, this.$refs.left);
 				this.$refs.left.pre()
 			},
 			show(event) {
 				if (this.disabled || false) {
 					return
 				}
-				const dateEditor = uni.createSelectorQuery().in(this).select(".uni-date-editor--X")
+				const systemInfo = uni.getSystemInfoSync()
+				if (systemInfo.windowWidth <= 500) {
+					this.$refs.mobile.open()
+					return
+				}
+				const dateEditor = uni.createSelectorQuery().in(this).select(".uni-date-editor--x")
 				dateEditor.boundingClientRect(rect => {
 					this.popover = {
 						top: rect.top + rect.height + 50 + 'px',
@@ -145,15 +169,29 @@
 					// this.visible = true
 				}, 20)
 			},
+			
+			close() {
+				setTimeout(() => {
+					this.popup = false
+					// this.visible = true
+				}, 20)
+			},
 
 			change(e) {
 				// console.log('change 返回:', e)
 				this.displayValue = e.fulldate
+				this.$emit('change', this.displayValue)
+				this.$emit('input', this.displayValue)
+				this.popup = false
 			},
 
-			startChange(e) {
-				// console.log('change start 返回:', e)
-				this.range.startVal = e.fulldate
+			leftChange(e) {
+				console.log('leftChange 返回:', e)
+				const {
+					before,
+					after
+				} = e.range
+				this.handleStartAndEnd(before, after)
 				const obj = {
 					before: e.range.before,
 					after: e.range.after,
@@ -164,9 +202,13 @@
 				// console.log('startMultipleStatus 返回:', this.startMultipleStatus)
 			},
 
-			endChange(e) {
-				// console.log('change end 返回:', e)
-				this.range.endVal = e.fulldate
+			rightChange(e) {
+				console.log('rightChange 返回:', e)
+				const {
+					before,
+					after
+				} = e.range
+				this.handleStartAndEnd(before, after)
 				const obj = {
 					before: e.range.before,
 					after: e.range.after,
@@ -176,10 +218,53 @@
 				this.endMultipleStatus = Object.assign({}, this.endMultipleStatus, obj)
 				// console.log('endMultipleStatus 返回:', this.endMultipleStatus)
 			},
+			
+			mobileChange(e) {
+				if (this.isRange) {
+					const {
+						before,
+						after
+					} = e.range
+					this.handleStartAndEnd(before, after)
+				} else {
+					this.displayValue = e.fulldate
+					this.$emit('change', this.displayValue)
+					this.$emit('input', this.displayValue)	
+				}
+				this.$refs.mobile.close()
+			},
+			handleStartAndEnd(before, after) {
+				if (before && after) {
+					if (this.dateCompare(before, after)) {
+						this.range.startVal = before
+						this.range.endVal = after
+					} else {
+						this.range.startVal = after
+						this.range.endVal = before
+					}
+					this.popup = false
+				}
+			},
 
+			/**
+			 * 比较时间大小
+			 */
+			dateCompare(startDate, endDate) {
+				// 计算截止时间
+				startDate = new Date(startDate.replace('-', '/').replace('-', '/'))
+				// 计算详细项的截止时间
+				endDate = new Date(endDate.replace('-', '/').replace('-', '/'))
+				if (startDate <= endDate) {
+					return true
+				} else {
+					return false
+				}
+			},
 
 			clear() {
 				this.displayValue = ''
+				this.range.startVal = ''
+				this.range.endVal = ''
 			},
 
 
@@ -191,9 +276,7 @@
 
 
 
-			confirm(e) {
-				console.log('confirm 返回:', e)
-			},
+			
 			leftMonthSwitch(e) {
 				// console.log('leftMonthSwitch 返回:', e)
 			},
@@ -216,6 +299,27 @@
 		color: #666;
 		font-size: 14px;
 	}
+	
+	.uni-date-editor--x {
+		position: relative;
+	}
+	
+	.uni-date-editor--x:hover .uni-date__icon-clear {
+		position: absolute;
+		top: 0;
+		right: 0;
+		display: inline-block;
+		box-sizing: border-box;
+		border: 6px solid transparent;
+		margin-right: 6px;
+		/* #ifdef H5 */
+		cursor: pointer;
+		/* #endif */
+	}
+	
+	.uni-date__icon-clear  {
+		display: none;
+	}
 
 	.uni-date__input {
 		height: 40px;
@@ -229,8 +333,7 @@
 		text-align: center;
 	}
 
-	.uni-date-picker__container {
-		/* display: none; */
+	/* .uni-date-picker__container {
 		position: fixed;
 		left: 0;
 		right: 0;
@@ -239,7 +342,7 @@
 		box-sizing: border-box;
 		z-index: 996;
 		font-size: 14px;
-	}
+	} */
 
 	.uni-date-mask {
 		position: fixed;
@@ -247,7 +350,7 @@
 		top: 0px;
 		left: 0px;
 		right: 0px;
-		background-color: rgba(0, 0, 0, 0.4);
+		background-color: rgba(0, 0, 0, 0);
 		transition-duration: 0.3s;
 		z-index: 996;
 	}
@@ -262,6 +365,7 @@
 	}
 
 	.uni-date-range--x {
+		background-color: #fff;
 		display: flex;
 		position: absolute;
 		top: 0;

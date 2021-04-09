@@ -1,5 +1,5 @@
 <template>
-	<view class="uni-calendar">
+	<view class="uni-calendar" @mouseleave="leaveCale">
 		<view v-if="!insert&&show" class="uni-calendar__mask" :class="{'uni-calendar--mask-show':aniMaskShow}"
 			@click="clean"></view>
 		<view v-if="insert || show" class="uni-calendar__content"
@@ -13,14 +13,14 @@
 				</view>
 			</view>
 			<view class="uni-calendar__header">
-				<view class="uni-calendar__header-btn-box" @click.stop="pre">
+				<view v-if="left" class="uni-calendar__header-btn-box" @click.stop="pre">
 					<view class="uni-calendar__header-btn uni-calendar--left"></view>
 				</view>
 				<picker mode="date" :value="date" fields="month" @change="bindDateChange">
 					<text
 						class="uni-calendar__header-text">{{ (nowDate.year||'') +'年'+( nowDate.month||'') +'月'}}</text>
 				</picker>
-				<view class="uni-calendar__header-btn-box" @click.stop="next">
+				<view v-if="right" class="uni-calendar__header-btn-box" @click.stop="next">
 					<view class="uni-calendar__header-btn uni-calendar--right"></view>
 				</view>
 				<!-- <text class="uni-calendar__backtoday" @click="backtoday">回到今天</text> -->
@@ -56,7 +56,7 @@
 				<view class="uni-calendar__weeks" v-for="(item,weekIndex) in weeks" :key="weekIndex">
 					<view class="uni-calendar__weeks-item" v-for="(weeks,weeksIndex) in item" :key="weeksIndex">
 						<calendar-item class="uni-calendar-item--hook" :weeks="weeks" :calendar="calendar"
-							:selected="selected" :lunar="lunar" @change="choiceDate" @handleMouse="handleMouse">
+							:selected="selected" :lunar="lunar" :checkHover="checkHover" @change="choiceDate" @handleMouse="handleMouse">
 						</calendar-item>
 					</view>
 				</view>
@@ -131,6 +131,18 @@
 				type: Boolean,
 				default: true
 			},
+			left: {
+				type: Boolean,
+				default: true
+			},
+			right: {
+				type: Boolean,
+				default: true
+			},
+			checkHover: {
+				type: Boolean,
+				default: true
+			},
 			pleStatus: {
 				type: Object,
 				default () {
@@ -150,6 +162,7 @@
 				calendar: {},
 				nowDate: '',
 				aniMaskShow: false,
+				firstEnter: true
 			}
 		},
 		watch: {
@@ -168,22 +181,23 @@
 				this.weeks = this.cale.weeks
 			},
 			pleStatus: {
-				immediate: false,
+				immediate: true,
 				handler(newVal, oldVal) {
-					if (newVal.fulldate) {
-						console.log(11111111, newVal);
-						console.log(22222222, oldVal);
-						// console.log(3333333, this.nowDate.fullDate);
-						this.cale.setHoverMultiple(newVal.fulldate)
-						if (newVal.before && newVal.after) {
-							this.setDate(newVal.before)
-							this.cale.lastHover = true
-						}
-						if (!newVal.before && !newVal.after) {
-							this.cale.setMultiple(newVal.fulldate)
-							this.setDate(this.nowDate.fullDate)
-							this.cale.lastHover = false
-						}
+					const { before, after, fulldate } = newVal
+					if (fulldate) {
+						setTimeout(() => {
+							this.cale.setHoverMultiple(fulldate)
+							if (before && after) {
+								this.cale.lastHover = true
+								if (this.rangeWithinMonth(after, before)) return
+								this.setDate(before)
+							}
+							if (!before && !after) {
+								this.cale.setMultiple(fulldate)
+								this.setDate(this.nowDate.fullDate)
+								this.cale.lastHover = false
+							}
+						}, 16)
 					}
 				}
 			}
@@ -204,22 +218,33 @@
 			// this.setDay
 		},
 		methods: {
+			leaveCale() {
+				this.firstEnter = true
+			},
 			handleMouse(weeks) {
 				if (weeks.disable) return
-				this.$emit('switchCale', this.cale.multipleStatus)
 				if (this.cale.lastHover) return
-				// console.log(77777, this.cale.lastHover);
 				let {
 					before,
 					after
 				} = this.cale.multipleStatus
-				if (!before) return
-				// if (before && after) return
+				if (!before) return				
 				this.calendar = weeks
 				// 设置范围选
 				this.cale.setHoverMultiple(this.calendar.fullDate)
 				this.weeks = this.cale.weeks
+				// hover时，进入一个日历，更新另一个
+				if (this.firstEnter) {
+					this.$emit('firstEnterCale', this.cale.multipleStatus)
+					this.firstEnter = false
+				}
 			},
+			rangeWithinMonth(A, B){
+				const [ yearA, monthA ] = A.split('-')
+				const [ yearB, monthB ] = B.split('-')
+				return yearA === yearB && monthA === monthB
+			},
+			
 			// 取消穿透
 			clean() {},
 			bindDateChange(e) {
