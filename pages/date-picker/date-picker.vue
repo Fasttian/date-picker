@@ -1,5 +1,5 @@
 <template>
-	<view style="padding: 20px; width: 350px;">
+	<view style="padding: 20px; width: 350px; margin: 0 auto;">
 		<view>单选</view>
 		<uni-date-picker v-model="single" />
 		<view style="margin-top: 30px;">范围选</view>
@@ -19,6 +19,9 @@
 		watch: {
 			single(newval) {
 				console.log(33333333, this.single);
+			},
+			range(newval) {
+				console.log(33333333, this.range);
 			}
 		}
 	}

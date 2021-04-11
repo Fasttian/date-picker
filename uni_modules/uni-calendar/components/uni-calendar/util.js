@@ -341,6 +341,23 @@ class Calendar {
 	}
 
 	/**
+	 * 更新默认值多选状态
+	 */
+	setDefaultMultiple(before, after) {
+		this.multipleStatus.before = before
+		this.multipleStatus.after = after
+		if (before && after) {
+			if (this.dateCompare(before, after)) {
+				this.multipleStatus.data = this.geDateAll(before, after);
+				this._getWeek(after)
+			} else {
+				this.multipleStatus.data = this.geDateAll(after, before);
+				this._getWeek(before)
+			}
+		}
+	}
+
+	/**
 	 * 获取每周数据
 	 * @param {Object} dateData
 	 */

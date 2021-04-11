@@ -1,7 +1,7 @@
 <template>
 	<view class="uni-date">
 		<view class="uni-date-editor--x">
-			
+
 			<view v-if="!isRange" class="uni-date-x uni-date-single mt20" @click="show">
 				<view class="uni-date__icon-logo">
 					<uni-icons type="list" color="#666"></uni-icons>
@@ -21,14 +21,14 @@
 					:placeholder="endPlaceholder" />
 			</view>
 			<view v-show="displayValue || range.startVal || range.endVal" class="uni-date__icon-clear" @click="clear">
-				
+
 				<uni-icons type="clear" color="#e1e1e1" size="14"></uni-icons>
 			</view>
 		</view>
 		<view v-show="popup" class="uni-date-mask" @click="close"></view>
 		<view ref="datePicker" v-show="popup" class="uni-date-picker__container">
 			<view v-if="!isRange" class="uni-date-single--x" :style="popover">
-				<uni-calendar :showMonth="false" :date="displayValue" @change="change"/>
+				<uni-calendar :showMonth="false" :date="defaultSingleValue" @change="change" />
 			</view>
 
 			<view v-else class="uni-date-range--x" :style="popover">
@@ -41,7 +41,7 @@
 			</view>
 		</view>
 		<uni-calendar ref="mobile" :showMonth="false" :range="isRange" @change="" :insert="false"
-			@confirm="mobileChange"/>
+			@confirm="mobileChange" />
 	</view>
 </template>
 <script>
@@ -52,6 +52,7 @@
 	export default {
 		data() {
 			return {
+				isRange: false,
 				mobileRange: false,
 				range: {
 					startVal: '',
@@ -72,7 +73,8 @@
 				visible: false,
 				popup: false,
 				popover: null,
-				displayValue: ''
+				displayValue: '',
+				defaultSingleValue: ''
 			}
 		},
 		props: {
@@ -115,9 +117,24 @@
 				immediate: true,
 				handler(newVal, oldVal) {
 					if (newVal) {
-						if (this.isRange === false)  {
+						if (this.isRange === false) {
 							this.displayValue = newVal
-						} 
+							this.defaultSingleValue = newVal
+						} else {
+							const [before, after] = newVal
+							this.range.startVal = before
+							this.range.endVal = after
+							const defaultRange = {
+								before: before,
+								after: after
+							}
+							this.startMultipleStatus = Object.assign({}, this.startMultipleStatus, defaultRange, {
+								which: 'right'
+							})
+							this.endMultipleStatus = Object.assign({}, this.endMultipleStatus, defaultRange, {
+								which: 'left'
+							})
+						}
 					}
 				}
 			}
@@ -169,7 +186,7 @@
 					// this.visible = true
 				}, 20)
 			},
-			
+
 			close() {
 				setTimeout(() => {
 					this.popup = false
@@ -218,7 +235,7 @@
 				this.endMultipleStatus = Object.assign({}, this.endMultipleStatus, obj)
 				// console.log('endMultipleStatus 返回:', this.endMultipleStatus)
 			},
-			
+
 			mobileChange(e) {
 				if (this.isRange) {
 					const {
@@ -229,7 +246,7 @@
 				} else {
 					this.displayValue = e.fulldate
 					this.$emit('change', this.displayValue)
-					this.$emit('input', this.displayValue)	
+					this.$emit('input', this.displayValue)
 				}
 				this.$refs.mobile.close()
 			},
@@ -242,6 +259,9 @@
 						this.range.startVal = after
 						this.range.endVal = before
 					}
+					const displayRange = [this.range.startVal, this.range.endVal]
+					this.$emit('change', displayRange)
+					this.$emit('input', displayRange)
 					this.popup = false
 				}
 			},
@@ -262,9 +282,16 @@
 			},
 
 			clear() {
-				this.displayValue = ''
-				this.range.startVal = ''
-				this.range.endVal = ''
+				if (!this.isRange) {
+					this.displayValue = ''
+					this.$emit('change', '')
+					this.$emit('input', '')
+				} else {
+					this.range.startVal = ''
+					this.range.endVal = ''
+					this.$emit('change', ['', ''])
+					this.$emit('input', ['', ''])
+				}
 			},
 
 
@@ -276,7 +303,7 @@
 
 
 
-			
+
 			leftMonthSwitch(e) {
 				// console.log('leftMonthSwitch 返回:', e)
 			},
@@ -299,11 +326,11 @@
 		color: #666;
 		font-size: 14px;
 	}
-	
+
 	.uni-date-editor--x {
 		position: relative;
 	}
-	
+
 	.uni-date-editor--x:hover .uni-date__icon-clear {
 		position: absolute;
 		top: 0;
@@ -316,8 +343,8 @@
 		cursor: pointer;
 		/* #endif */
 	}
-	
-	.uni-date__icon-clear  {
+
+	.uni-date__icon-clear {
 		display: none;
 	}
 

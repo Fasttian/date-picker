@@ -56,7 +56,8 @@
 				<view class="uni-calendar__weeks" v-for="(item,weekIndex) in weeks" :key="weekIndex">
 					<view class="uni-calendar__weeks-item" v-for="(weeks,weeksIndex) in item" :key="weeksIndex">
 						<calendar-item class="uni-calendar-item--hook" :weeks="weeks" :calendar="calendar"
-							:selected="selected" :lunar="lunar" :checkHover="checkHover" @change="choiceDate" @handleMouse="handleMouse">
+							:selected="selected" :lunar="lunar" :checkHover="checkHover" @change="choiceDate"
+							@handleMouse="handleMouse">
 						</calendar-item>
 					</view>
 				</view>
@@ -167,8 +168,8 @@
 		},
 		watch: {
 			date(newVal) {
-				// this.cale.setDate(newVal)
-				this.init(newVal)
+					// this.cale.setDate(newVal)
+					this.init(newVal)
 			},
 			startDate(val) {
 				this.cale.resetSatrtDate(val)
@@ -183,9 +184,14 @@
 			pleStatus: {
 				immediate: true,
 				handler(newVal, oldVal) {
-					const { before, after, fulldate } = newVal
-					if (fulldate) {
-						setTimeout(() => {
+					const {
+						before,
+						after,
+						fulldate,
+						which
+					} = newVal
+					setTimeout(() => {
+						if (fulldate) {
 							this.cale.setHoverMultiple(fulldate)
 							if (before && after) {
 								this.cale.lastHover = true
@@ -197,8 +203,16 @@
 								this.setDate(this.nowDate.fullDate)
 								this.cale.lastHover = false
 							}
-						}, 16)
-					}
+						} else {
+							this.cale.setDefaultMultiple(before, after)
+							if (which === 'left') {
+								this.setDate(before)
+							} else {
+								this.setDate(after)
+							}
+							this.cale.lastHover = true
+						}
+					}, 16)
 				}
 			}
 		},
@@ -228,7 +242,7 @@
 					before,
 					after
 				} = this.cale.multipleStatus
-				if (!before) return				
+				if (!before) return
 				this.calendar = weeks
 				// 设置范围选
 				this.cale.setHoverMultiple(this.calendar.fullDate)
@@ -239,12 +253,12 @@
 					this.firstEnter = false
 				}
 			},
-			rangeWithinMonth(A, B){
-				const [ yearA, monthA ] = A.split('-')
-				const [ yearB, monthB ] = B.split('-')
+			rangeWithinMonth(A, B) {
+				const [yearA, monthA] = A.split('-')
+				const [yearB, monthB] = B.split('-')
 				return yearA === yearB && monthA === monthB
 			},
-			
+
 			// 取消穿透
 			clean() {},
 			bindDateChange(e) {
