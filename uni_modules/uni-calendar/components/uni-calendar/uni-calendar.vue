@@ -56,7 +56,7 @@
 				<view class="uni-calendar__weeks" v-for="(item,weekIndex) in weeks" :key="weekIndex">
 					<view class="uni-calendar__weeks-item" v-for="(weeks,weeksIndex) in item" :key="weeksIndex">
 						<calendar-item class="uni-calendar-item--hook" :weeks="weeks" :calendar="calendar"
-							:selected="selected" :lunar="lunar" :checkHover="checkHover" @change="choiceDate"
+							:selected="selected" :lunar="lunar" :checkHover="range" @change="choiceDate"
 							@handleMouse="handleMouse">
 						</calendar-item>
 					</view>
@@ -167,7 +167,8 @@
 			}
 		},
 		watch: {
-			date(newVal) {
+			date(newVal, oldVal) {
+					
 					// this.cale.setDate(newVal)
 					this.init(newVal)
 			},
@@ -201,6 +202,7 @@
 							if (!before && !after) {
 								this.cale.setMultiple(fulldate)
 								this.setDate(this.nowDate.fullDate)
+								this.calendar.fullDate = ''
 								this.cale.lastHover = false
 							}
 						} else {
@@ -228,6 +230,7 @@
 			})
 			// 选中某一天
 			// this.cale.setDate(this.date)
+			
 			this.init(this.date)
 			// this.setDay
 		},
@@ -271,6 +274,7 @@
 			 * @param {Object} date
 			 */
 			init(date) {
+				
 				this.cale.setDate(date)
 				this.weeks = this.cale.weeks
 				this.nowDate = this.calendar = this.cale.getInfo(date)
@@ -375,6 +379,20 @@
 				// this.cale.setDate(date)
 				this.init(date)
 				this.change()
+			},
+			/**
+			 * 比较时间大小
+			 */
+			dateCompare(startDate, endDate) {
+				// 计算截止时间
+				startDate = new Date(startDate.replace('-', '/').replace('-', '/'))
+				// 计算详细项的截止时间
+				endDate = new Date(endDate.replace('-', '/').replace('-', '/'))
+				if (startDate <= endDate) {
+					return true
+				} else {
+					return false
+				}
 			},
 			/**
 			 * 上个月

@@ -2,13 +2,13 @@
 	<view class="uni-date">
 		<view class="uni-date-editor--x">
 
-			<view v-if="!isRange" class="uni-date-x uni-date-single mt20" @click="show">
+			<view v-if="!isRange" class="uni-date-x uni-date-single" @click="show">
 				<view class="uni-date__icon-logo">
 					<uni-icons type="list" color="#666"></uni-icons>
 				</view>
 				<input class="uni-date__input" type="text" :value="displayValue" :placeholder="placeholder" />
 			</view>
-			<view v-else class="uni-date-x uni-date-range mt20" @click="show">
+			<view v-else class="uni-date-x uni-date-range" @click="show">
 				<view class="uni-date__icon-logo">
 					<uni-icons type="list" color="#666"></uni-icons>
 				</view>
@@ -21,14 +21,13 @@
 					:placeholder="endPlaceholder" />
 			</view>
 			<view v-show="displayValue || range.startVal || range.endVal" class="uni-date__icon-clear" @click="clear">
-
 				<uni-icons type="clear" color="#e1e1e1" size="14"></uni-icons>
 			</view>
 		</view>
 		<view v-show="popup" class="uni-date-mask" @click="close"></view>
 		<view ref="datePicker" v-show="popup" class="uni-date-picker__container">
 			<view v-if="!isRange" class="uni-date-single--x" :style="popover">
-				<uni-calendar :showMonth="false" :date="defaultSingleValue" @change="change" />
+				<uni-calendar ref="pcSingle" :showMonth="false" :date="defaultSingleValue" @change="change" />
 			</view>
 
 			<view v-else class="uni-date-range--x" :style="popover">
@@ -40,7 +39,7 @@
 					style="padding-left: 16px;border-left: 1px solid #F1F1F1;" />
 			</view>
 		</view>
-		<uni-calendar ref="mobile" :showMonth="false" :range="isRange" @change="" :insert="false"
+		<uni-calendar ref="mobile" :clearDate="false" :date="defaultSingleValue" :pleStatus="endMultipleStatus" :showMonth="false" :range="isRange" @change="" :insert="false"
 			@confirm="mobileChange" />
 	</view>
 </template>
@@ -99,7 +98,12 @@
 				default: '结束日期'
 			},
 			rangeSeparator: {
+				type: String,
 				default: '-'
+			},
+			disabled: {
+				type: Boolean,
+				default: false
 			}
 		},
 		watch: {
@@ -117,11 +121,13 @@
 				immediate: true,
 				handler(newVal, oldVal) {
 					if (newVal) {
-						if (this.isRange === false) {
+						if (!Array.isArray(newVal) && this.isRange === false) {
 							this.displayValue = newVal
 							this.defaultSingleValue = newVal
 						} else {
+							if (oldVal) return 	// 只初始默认值
 							const [before, after] = newVal
+							if (!before && !after) return
 							this.range.startVal = before
 							this.range.endVal = after
 							const defaultRange = {
@@ -144,7 +150,13 @@
 		},
 		mounted() {
 			if (this.isRange) {
-				this.$refs.right.next()
+				if (!Array.isArray(this.value)) return
+				const [before, after] = this.value
+				if (before && after) return
+				setTimeout(() => {
+					this.$refs.right.next()
+					this.$refs.right.cale.lastHover = false
+				}, 20)
 			}
 		},
 		methods: {
@@ -166,7 +178,7 @@
 				this.$refs.left.pre()
 			},
 			show(event) {
-				if (this.disabled || false) {
+				if (this.disabled) {
 					return
 				}
 				const systemInfo = uni.getSystemInfoSync()
@@ -177,7 +189,7 @@
 				const dateEditor = uni.createSelectorQuery().in(this).select(".uni-date-editor--x")
 				dateEditor.boundingClientRect(rect => {
 					this.popover = {
-						top: rect.top + rect.height + 50 + 'px',
+						top: rect.top + rect.height + 15 + 'px',
 						left: rect.left + 'px',
 					}
 				}).exec()
@@ -284,11 +296,25 @@
 			clear() {
 				if (!this.isRange) {
 					this.displayValue = ''
+					console.log(66666, this.$refs.pcSingle);
+					this.$refs.pcSingle.calendar.fullDate = ''
+					this.$refs.pcSingle.setDate()
 					this.$emit('change', '')
 					this.$emit('input', '')
 				} else {
 					this.range.startVal = ''
 					this.range.endVal = ''
+					this.$refs.left.cale.multipleStatus.before = ''
+					this.$refs.left.cale.multipleStatus.after = ''
+					this.$refs.left.cale.multipleStatus.data = []
+					this.$refs.left.cale.lastHover = false
+					this.$refs.left.setDate()
+					this.$refs.right.cale.multipleStatus.before = ''
+					this.$refs.right.cale.multipleStatus.after = ''
+					this.$refs.right.cale.multipleStatus.data = []
+					this.$refs.right.cale.lastHover = false
+					this.$refs.right.setDate()
+					this.$refs.right.next()
 					this.$emit('change', ['', ''])
 					this.$emit('input', ['', ''])
 				}
@@ -296,19 +322,11 @@
 
 
 
-
-
-
-
-
-
-
-
 			leftMonthSwitch(e) {
-				// console.log('leftMonthSwitch 返回:', e)
+				console.log('leftMonthSwitch 返回:', e)
 			},
 			rightMonthSwitch(e) {
-				// console.log('rightMonthSwitch 返回:', e)
+				console.log('rightMonthSwitch 返回:', e)
 			}
 		}
 	}

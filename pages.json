@@ -1,9 +1,7 @@
 {
 	"pages": [{
-		"path": "pages/date-picker/date-picker",
-		"style": {
-			"navigationBarTitleText": "date-picker"
-		}
+		"path": "pages/date-picker/date-picker"
+		
 	}, {
 		"path": "pages/calendar/calendar",
 		"style": {
