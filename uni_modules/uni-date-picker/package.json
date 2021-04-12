@@ -4,9 +4,12 @@
   "version": "1.0.0",
   "description": "日期选择器",
   "keywords": [
-    "日期选择器",
+    "期选择器",
     "日历",
-    "范围选择"
+    "范围选择",
+    "uni-date-picker",
+    "uni-ui",
+    ""
 ],
   "repository": "https://github.com/dcloudio/uni-ui",
   "engines": {
