@@ -1,26 +1,27 @@
 <template>
 	<view class="uni-date">
-		<view class="uni-date-editor--x">
-
+		<view class="uni-date-editor--x" :class="{'uni-date-editor--x__disabled': disabled,
+		'uni-date-x--border': border}">
 			<view v-if="!isRange" class="uni-date-x uni-date-single" @click="show">
 				<view class="uni-date__icon-logo">
-					<uni-icons type="list" color="#666"></uni-icons>
+					<!-- <uni-icons type="list" color="#666"></uni-icons> -->
+					<image class="uni-date-editor--logo" src="./icon/cale-50.png" mode=""></image>
 				</view>
-				<input class="uni-date__input" type="text" :value="displayValue" :placeholder="placeholder" />
+				<input class="uni-date__input" type="text" :value="displayValue" :placeholder="placeholder" :disabled="true" />
 			</view>
 			<view v-else class="uni-date-x uni-date-range" @click="show">
 				<view class="uni-date__icon-logo">
-					<uni-icons type="list" color="#666"></uni-icons>
+					<image class="uni-date-editor--logo" src="./icon/cale-50.png" mode=""></image>
 				</view>
 				<input class="uni-date__input uni-date-range__input" type="text" :value="range.startVal"
-					:placeholder="startPlaceholder" />
+					:placeholder="startPlaceholder" :disabled="true" />
 				<slot>
 					<view class="">{{rangeSeparator}}</view>
 				</slot>
 				<input class="uni-date__input uni-date-range__input" type="text" :value="range.endVal"
-					:placeholder="endPlaceholder" />
+					:placeholder="endPlaceholder" :disabled="true" />
 			</view>
-			<view v-show="displayValue || range.startVal || range.endVal" class="uni-date__icon-clear" @click="clear">
+			<view v-show="!disabled && (displayValue || (range.startVal && range.endVal))" class="uni-date__icon-clear" @click="clear">
 				<uni-icons type="clear" color="#e1e1e1" size="14"></uni-icons>
 			</view>
 		</view>
@@ -39,16 +40,17 @@
 					style="padding-left: 16px;border-left: 1px solid #F1F1F1;" />
 			</view>
 		</view>
-		<uni-calendar ref="mobile" :clearDate="false" :date="defaultSingleValue" :pleStatus="endMultipleStatus" :showMonth="false" :range="isRange" @change="" :insert="false"
-			@confirm="mobileChange" />
+		<uni-calendar ref="mobile" :clearDate="false" :date="defaultSingleValue" :pleStatus="endMultipleStatus"
+			:showMonth="false" :range="isRange" @change="" :insert="false" @confirm="mobileChange" />
 	</view>
 </template>
 <script>
-	/**
-	 * 获取任意时间
-	 */
+	import uniCalendar from './basic/uni-calendar.vue'
 
 	export default {
+		components: {
+			uniCalendar
+		},
 		data() {
 			return {
 				isRange: false,
@@ -101,8 +103,12 @@
 				type: String,
 				default: '-'
 			},
+			border: {
+				type: [Boolean],
+				default: true
+			},
 			disabled: {
-				type: Boolean,
+				type: [Boolean],
 				default: false
 			}
 		},
@@ -125,7 +131,7 @@
 							this.displayValue = newVal
 							this.defaultSingleValue = newVal
 						} else {
-							if (oldVal) return 	// 只初始默认值
+							if (oldVal) return // 只初始默认值
 							const [before, after] = newVal
 							if (!before && !after) return
 							this.range.startVal = before
@@ -215,7 +221,6 @@
 			},
 
 			leftChange(e) {
-				console.log('leftChange 返回:', e)
 				const {
 					before,
 					after
@@ -232,7 +237,6 @@
 			},
 
 			rightChange(e) {
-				console.log('rightChange 返回:', e)
 				const {
 					before,
 					after
@@ -296,7 +300,6 @@
 			clear() {
 				if (!this.isRange) {
 					this.displayValue = ''
-					console.log(66666, this.$refs.pcSingle);
 					this.$refs.pcSingle.calendar.fullDate = ''
 					this.$refs.pcSingle.setDate()
 					this.$emit('change', '')
@@ -323,10 +326,10 @@
 
 
 			leftMonthSwitch(e) {
-				console.log('leftMonthSwitch 返回:', e)
+				// console.log('leftMonthSwitch 返回:', e)
 			},
 			rightMonthSwitch(e) {
-				console.log('rightMonthSwitch 返回:', e)
+				// console.log('rightMonthSwitch 返回:', e)
 			}
 		}
 	}
@@ -338,12 +341,17 @@
 		align-items: center;
 		justify-content: center;
 		padding: 0 10px;
-		border: 1px solid #dcdfe6;
 		border-radius: 4px;
 		background-color: #fff;
 		color: #666;
 		font-size: 14px;
 	}
+	
+	 .uni-date-x--border {
+		box-sizing: border-box;
+		border-radius: 4px;
+	 	border: 1px solid #dcdfe6;
+	 }
 
 	.uni-date-editor--x {
 		position: relative;
@@ -421,7 +429,13 @@
 		border-radius: 4px;
 	}
 
-	.mt20 {
-		margin-top: 20px;
+	.uni-date-editor--x__disabled {
+		opacity: 0.4;
+		cursor: default;
+	}
+	.uni-date-editor--logo {
+		width: 16px;
+		height: 16px;
+		vertical-align: middle;
 	}
 </style>
