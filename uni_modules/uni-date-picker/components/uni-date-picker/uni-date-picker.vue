@@ -4,7 +4,6 @@
 		'uni-date-x--border': border}">
 			<view v-if="!isRange" class="uni-date-x uni-date-single" @click="show">
 				<view class="uni-date__icon-logo">
-					<!-- <uni-icons type="list" color="#666"></uni-icons> -->
 					<image class="uni-date-editor--logo" src="./icon/cale-50.png" mode=""></image>
 				</view>
 				<input class="uni-date__input" type="text" :value="displayValue" :placeholder="placeholder" :disabled="true" />
@@ -47,9 +46,24 @@
 <script>
 	import uniCalendar from './basic/uni-calendar.vue'
 
+	/**
+	 * uni-date-picker
+	 * @description 同时支持 PC 和移动端使用日历选择日期和日期范围
+	 * @tutorial https://ext.dcloud.net.cn/plugin?id=4700
+	 * @property {String} type 选择器类型
+	 * @property {String|Array} value 绑定值
+	 * @property {String} placeholder 单选择时的占位内容
+	 * @property {String} start-placeholder 范围选择时开始日期的占位内容
+	 * @property {String} end-placeholder 范围选择时结束日期的占位内容
+	 * @property {String} range-separator 选择范围时的分隔符
+	 * @property {Boolean} border = [true|false] 是否有边框
+	 * @property {Boolean} disabled = [true|false] 是否禁用
+	 * @event {Function} change 确定日期时触发的事件
+	 **/
+
 	export default {
 		components: {
-			uniCalendar
+			uniCalendar 
 		},
 		data() {
 			return {
@@ -83,7 +97,7 @@
 				type: String,
 				default: 'date'
 			},
-			value: {
+			value: {	
 				type: [String, Number, Array],
 				default: ''
 			},

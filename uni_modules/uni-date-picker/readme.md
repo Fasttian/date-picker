@@ -36,7 +36,7 @@
 		data() {
 			return {
 				single: '2010-02-3',
-				range: ['2020-10-1',  '2021-4-1']
+				range: ['2020-10-1',  '2021-4-12']
 			}
 		},
 		
@@ -59,16 +59,17 @@
 |属性名				|类型			|默认值		|值域																		|说明							|
 |:-:				|:-:			|:-:		|																			|:-:							|
 |type				|String			|date	|date/daterange	|选择器类型						|
-|value/v-model		|String、Number	|-			|-																			|绑定值							|
-|placeholder		|String			|-			|-																			|非范围选择时的占位内容			|
+|value/v-model		|String、Array	|-			|-																			|绑定值							|
+|placeholder		|String			|-			|-																			|单选择时的占位内容			|
 |start-placeholder	|String			|-			|-																			|范围选择时开始日期的占位内容	|
 |end-placeholder	|String			|-			|-																			|范围选择时结束日期的占位内容	|
+|range-separator	|String			|-			|-																			|选择范围时的分隔符	|
 |border				|Boolean|true		|																			|是否有边框						|
-|disabled			|Boolean|false		|																			|是否不可选择					|
+|disabled			|Boolean|false		|																			|是否禁用					|
 
 
 ### DatePicker Events
 
 |事件名称	|说明												|返回值	|
 |:-:		|:-:												|:-:	|
-|change		|确定日期时间时触发的事件，参数为当前选择的日期对象	|	单选返回日期字符串，如：'2010-02-3'；单选返回日期字数组，如：['2020-10-1',  '2021-4-1']	|
+|change		|确定日期时间时触发的事件	|	单选返回日期字符串，如：'2010-02-3'；多选返回日期字符串数组，如：['2020-10-1',  '2021-4-1']	|
